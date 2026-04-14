@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>查詢結果</title>
+</head>
+<body>
+    <h2>關於「{{ keyword }}」的查詢結果：</h2>
+    {% if results %}
+        <ul>
+            {% for user in results %}
+                <li>{{ user.name }} 老師的研究室在 {{ user.lab }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>找不到符合條件的老師。</p>
+    {% endif %}
+    <hr>
+    <a href="/search">繼續查詢</a> | <a href="/">回首頁</a>
+</body>
+</html>
