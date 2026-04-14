@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數學運算 - Neubrutalism Style</title>
+    <style>
+        /* 新野獸派風格設計 */
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-card {
+            background-color: #fff;
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            padding: 30px;
+            width: 320px;
+        }
+        h2 { margin-top: 0; text-transform: uppercase; border-bottom: 4px solid #000; padding-bottom: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 3px solid #000;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #a3ffac; /* 亮綠色 */
+            border: 3px solid #000;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s;
+        }
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+        #result-display {
+            margin-top: 25px;
+            padding: 15px;
+            border: 3px dashed #000;
+            min-height: 24px;
+            font-weight: bold;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>數學運算</h2>
+    
+    <label>請輸入 x</label>
+    <input type="number" id="numX" placeholder="例如: 10">
+
+    <label>請選擇運算子</label>
+    <select id="operator">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">*</option>
+        <option value="/">/</option>
+    </select>
+
+    <label>請輸入 y</label>
+    <input type="number" id="numY" placeholder="例如: 5">
+
+    <button onclick="runMath()">[ 計算 ]</button>
+
+    <div id="result-display">等待計算中...</div>
+</div>
+
+<script>
+    function runMath() {
+        // 取得網頁元件
+        const x = parseFloat(document.getElementById('numX').value);
+        const y = parseFloat(document.getElementById('numY').value);
+        const opt = document.getElementById('operator').value;
+        const display = document.getElementById('result-display');
+
+        // 檢查空值
+        if (isNaN(x) || isNaN(y)) {
+            display.innerText = "⚠️ 請填寫完整的數字";
+            display.style.backgroundColor = "#ff7eb6"; // 警告色
+            return;
+        }
+
+        let result;
+        // 邏輯判斷：除數不能為 0
+        if (opt === "/" && y === 0) {
+            display.innerText = "❌ 除數不能為 0";
+            display.style.backgroundColor = "#ff7eb6";
+            return;
+        }
+
+        // 執行運算
+        switch (opt) {
+            case "+": result = x + y; break;
+            case "-": result = x - y; break;
+            case "*": result = x * y; break;
+            case "/": result = x / y; break;
+        }
+
+        // 顯示結果
+        display.innerText = `${x} ${opt} ${y} 的結果是 ${result}`;
+        display.style.backgroundColor = "#80d4ff"; // 成功色
+    }
+</script>
+
+</body>
+</html>
