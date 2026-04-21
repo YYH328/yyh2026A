@@ -1,3 +1,6 @@
+import requests
+from bs4 import BeautifulSoup
+
 import os
 import json
 import firebase_admin
@@ -33,6 +36,8 @@ def index():
     link += "<a href=/cup>擲茭</a><hr>"
     link += "<a href=/read>讀取Firestore資料(根據lab遞減排序,取前4</a><hr>"
     link += "<a href=/search>查詢老師及其研究室</a><hr>"
+    link += "<a href=/sp1>爬取課程</a><hr>"
+    link += "<a href=/movie>即將上映的電影</a><hr>"
 
 
     return link
@@ -52,6 +57,21 @@ def read():
 @app.route("/mis")
 def course():
     return "<h1>資訊管理導論</h1><a href=/>回到網站首頁</a>"
+
+@app.route("/sp1")
+def sp1():
+    R = ""
+    url = "https://yyh2026-a.vercel.app/about"
+    Data = requests.get(url)
+    Data.encoding = "utf-8"
+    #print(Data.text)
+    sp = BeautifulSoup(Data.text, "html.parser")
+    result=sp.select("td a")
+
+    for item in result:
+        R += item.text + "<br>" + item.get("href") + "<br><br>"
+    return R
+
 
 @app.route("/today")
 def today():
@@ -137,6 +157,35 @@ def search():
     
     # 如果是直接點網址 (GET)，就顯示搜尋輸入框
     return render_template("search.html")
+
+@app.route("/movie")
+def movie():
+    url = "https://www.atmovies.com.tw/movie/next/"
+    Data = requests.get(url)
+    Data.encoding = "utf-8"
+    sp = BeautifulSoup(Data.text, "html.parser")
+    
+    # 根據你圖片中的選取器邏輯
+    result = sp.select(".filmListAllX li")
+    
+    R = "<h1>即將上映電影清單</h1>"
+    R += "<a href='/'>回到首頁</a><br><hr>"
+    
+    for item in result:
+        try:
+            # 抓取電影名稱 (從 img 的 alt 屬性)
+            name = item.find("img").get("alt")
+            # 抓取連結 (補上完整網址)
+            link = "https://www.atmovies.com.tw" + item.find("a").get("href")
+            
+            # 組合 HTML 字串
+            R += f"🎬 <b>{name}</b><br>"
+            R += f"🔗 <a href='{link}' target='_blank'>電影介紹連結</a><br><br>"
+        except:
+            # 防止部分 li 結構不完整導致報錯
+            continue
+            
+    return R
 
 
 if __name__ == "__main__":
