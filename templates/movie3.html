@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>電影資訊查詢</title>
+    <style>
+        body { background-color: #f0f0f0; font-family: 'Inter', sans-serif; padding: 50px; }
+        
+        /* Neubrutalism Style Search Bar */
+        .search-box {
+            border: 4px solid #000;
+            padding: 20px;
+            background: #a3ffac;
+            box-shadow: 10px 10px 0px #000;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        input[type="text"] {
+            border: 3px solid #000;
+            padding: 10px;
+            width: 70%;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        button {
+            border: 3px solid #000;
+            background: #ff90e8;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+
+        /* Movie Cards */
+        .movie-card {
+            border: 4px solid #000;
+            background: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 8px 8px 0px #000;
+            max-width: 600px;
+        }
+        
+        .movie-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="search-box">
+        <h2 style="margin-top:0;">🔍 電影關鍵字查詢</h2>
+        <form action="/movie3" method="post">
+            <input type="text" name="keyword" placeholder="請輸入電影名稱..." required>
+            <button type="submit">搜尋</button>
+        </form>
+    </div>
+
+    {% if movies is not none %}
+        <h3>搜尋結果：</h3>
+        {% if movies %}
+            {% for movie in movies %}
+                <div class="movie-card">
+                    <div class="movie-title">{{ movie.title }}</div>
+                    <p>劇情簡介：{{ movie.summary }}</p>
+                    <a href="{{ movie.link }}" target="_blank">查看更多</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>找不到相關電影資訊。</p>
+        {% endif %}
+    {% endif %}
+
+</body>
+</html>

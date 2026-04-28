@@ -37,8 +37,9 @@ def index():
     link += "<a href=/read>讀取Firestore資料(根據lab遞減排序,取前4</a><hr>"
     link += "<a href=/search>查詢老師及其研究室</a><hr>"
     link += "<a href=/sp1>爬取課程</a><hr>"
-    link += "<a href=/movie>即將上映的電影</a><hr>"
-
+    link += "<a href=/movie1>即將上映的電影</a><hr>"
+    link += "<a href=/movie2>讀取開眼電影即將上映影片，寫入Firestore</a><hr>"
+    link += "<a href=/movie3>查詢相關電影資訊</a>"
 
     return link
 
@@ -158,8 +159,8 @@ def search():
     # 如果是直接點網址 (GET)，就顯示搜尋輸入框
     return render_template("search.html")
 
-@app.route("/movie")
-def movie():
+@app.route("/movie1")
+def movie1():
     url = "https://www.atmovies.com.tw/movie/next/"
     Data = requests.get(url)
     Data.encoding = "utf-8"
@@ -186,6 +187,60 @@ def movie():
             continue
             
     return R
+
+@app.route("/movie2")
+def movie2():
+  url = "http://www.atmovies.com.tw/movie/next/"
+  Data = requests.get(url)
+  Data.encoding = "utf-8"
+  sp = BeautifulSoup(Data.text, "html.parser")
+  result=sp.select(".filmListAllX li")
+  lastUpdate = sp.find("div", class_="smaller09").text[5:]
+
+  for item in result:
+    picture = item.find("img").get("src").replace(" ", "")
+    title = item.find("div", class_="filmtitle").text
+    movie_id = item.find("div", class_="filmtitle").find("a").get("href").replace("/", "").replace("movie", "")
+    hyperlink = "http://www.atmovies.com.tw" + item.find("div", class_="filmtitle").find("a").get("href")
+    show = item.find("div", class_="runtime").text.replace("上映日期：", "")
+    show = show.replace("片長：", "")
+    show = show.replace("分", "")
+    showDate = show[0:10]
+    showLength = show[13:]
+
+    doc = {
+        "title": title,
+        "picture": picture,
+        "hyperlink": hyperlink,
+        "showDate": showDate,
+        "showLength": showLength,
+        "lastUpdate": lastUpdate
+      }
+
+    db = firestore.client()
+    doc_ref = db.collection("電影").document(movie_id)
+    doc_ref.set(doc)    
+  return "近期上映電影已爬蟲及存檔完畢，網站最近更新日期為：" + lastUpdate 
+
+@app.route("/movie3", methods=["GET", "POST"])
+def movie3():
+    if request.method == "POST":
+        keyword = request.form.get("keyword")
+        db = firestore.client()
+        
+        # 1. 取得 movies 集合中的所有文件 (請確認你的集合名稱是 movies)
+        movies_ref = db.collection("電影").stream()
+        
+        movie_list = []
+        for doc in movies_ref:
+            movie_data = doc.to_dict()
+            # 2. 檢查關鍵字是否在標題內 (不分大小寫)
+            if keyword.lower() in movie_data.get("title", "").lower():
+                movie_list.append(movie_data)
+        
+        return render_template("movie3.html", movies=movie_list, keyword=keyword)
+    
+    return render_template("movie3.html", movies=None)
 
 
 if __name__ == "__main__":
