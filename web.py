@@ -39,7 +39,9 @@ def index():
     link += "<a href=/sp1>爬取課程</a><hr>"
     link += "<a href=/movie1>即將上映的電影</a><hr>"
     link += "<a href=/movie2>讀取開眼電影即將上映影片，寫入Firestore</a><hr>"
-    link += "<a href=/movie3>查詢相關電影資訊</a>"
+    link += "<a href=/movie3>查詢相關電影資訊</a><hr>"
+    link += "<a href=/road>十大高肇事路口</a><hr>"
+    link += "<a href=/weather>台中即時天氣預報</a><hr>"
 
     return link
 
@@ -241,6 +243,69 @@ def movie3():
         return render_template("movie3.html", movies=movie_list, keyword=keyword)
     
     return render_template("movie3.html", movies=None)
+
+@app.route("/road")
+def road():
+    R = ""
+    url = " https://newdatacenter.taichung.gov.tw/api/v1/no-auth/resource.download?rid=a1b899c0-511f-4e3d-b22b-814982a97e41"
+    Data = requests.get(url)
+    #print(Data.text)
+
+    JsonData = json.loads(Data.text)
+    for item in JsonData:
+        R += item["路口名稱"] + ",總共發生" + item["總件數"] + "件事故<br>"
+    return R + "<a href='/'>回到首頁</a><br><hr>"
+
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    if request.method == "POST":
+        # 取得表單輸入的城市名稱
+        city = request.form.get("city")
+    else:
+        # 如果是 GET 請求，預設顯示「臺中市」
+        city = request.args.get("city", "臺中市")
+    
+    # 處理台/臺字體轉換（如截圖第 4 行）
+    city = city.replace("台", "臺")
+    
+    # 氣象局 API 設定（參考截圖第 5-6 行）
+    token = "rdec-key-123-45678-011121314"
+    url = f"https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization={token}&format=JSON&locationName={city}"
+    
+    try:
+        Data = requests.get(url)
+        Data.encoding = "utf-8"
+        json_data = json.loads(Data.text)
+        
+        # 檢查是否有抓到該城市的資料
+        if not json_data["records"]["location"]:
+            return f"找不到 '{city}' 的氣象資料，請檢查縣市名稱是否正確。<br><a href='/weather'>重新查詢</a>"
+
+        # 解析資料（參考截圖第 11, 14, 15 行）
+        WeatherTitle = json_data["records"]["datasetDescription"]
+        location_data = json_data["records"]["location"][0]
+        
+        # 天氣現象 (Wx)
+        Weather = location_data["weatherElement"][0]["time"][0]["parameter"]["parameterName"]
+        # 降雨機率 (PoP)
+        Rain = location_data["weatherElement"][1]["time"][0]["parameter"]["parameterName"]
+        
+        # 建立簡單的 HTML 表單供使用者輸入
+        html_form = f"""
+            <form method="POST" action="/weather">
+                請輸入縣市名稱：<input type="text" name="city" value="{city}">
+                <input type="submit" value="查詢">
+            </form>
+            <hr>
+            <h2>{city} - {WeatherTitle}</h2>
+            <p>目前預報：{Weather}</p>
+            <p>降雨機率：{Rain}%</p>
+            <a href="/">回到首頁</a>
+        """
+        return html_form
+        
+    except Exception as e:
+        return f"查詢失敗，錯誤訊息：{str(e)}<br><a href='/weather'>返回查詢</a>"
 
 
 if __name__ == "__main__":
