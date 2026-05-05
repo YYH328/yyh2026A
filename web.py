@@ -40,8 +40,8 @@ def index():
     link += "<a href=/movie1>即將上映的電影</a><hr>"
     link += "<a href=/movie2>讀取開眼電影即將上映影片，寫入Firestore</a><hr>"
     link += "<a href=/movie3>查詢相關電影資訊</a><hr>"
-    link += "<a href=/road>十大高肇事路口</a><hr>"
-    link += "<a href=/weather>台中即時天氣預報</a><hr>"
+    link += "<a href=/road>台中市十大肇事路口</a><hr>"
+    link += "<a href=/weather>天氣預報查詢</a><hr>"
 
     return link
 
