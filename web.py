@@ -394,6 +394,9 @@ def rate():
         doc_ref.set(doc)
     return "本週新片已爬蟲及存檔完畢，網站最近更新日期為：" + lastUpdate
 
+@app.route("/demo")
+def demo():
+    return render_template("demo.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
