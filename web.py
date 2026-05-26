@@ -93,6 +93,10 @@ def webhook():
 
     return make_response(jsonify({"fulfillmentText": info}))
 
+@app.route("/messenger")
+def messenger():
+    return render_template("messenger.html")
+
 @app.route("/read")
 def read():
     Temp = ""
